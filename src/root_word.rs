@@ -1,11 +1,11 @@
 use regex::Regex;
 
-struct RootWord {
-  value:  String,
+pub struct RootWord {
+  pub value:  String,
 }
 
 impl RootWord {
-  fn new(value: String) -> Result<RootWord, &'static str> {
+  pub fn new(value: String) -> Result<RootWord, &'static str> {
     match RootWord::valid(&value) {
       false => Err("Invalid value"),
       true  => Ok(RootWord {
@@ -25,8 +25,7 @@ impl RootWord {
       "m[lrnbdgjvcfkpstx]|n[lrm])");
     let pattern = format!("^({}{}{}|{}{}{}){}$", pair, vowel, cons, cons, vowel,
       cluster, vowel);
-    let exprsn  = Regex::new(&pattern).unwrap();
-    exprsn.is_match(&value)
+    Regex::new(&pattern).unwrap().is_match(&value)
   }
 }
 
