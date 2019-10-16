@@ -1,7 +1,9 @@
+use std::fmt;
 use regex::Regex;
+use serde_json::json;
 
 pub struct RootWord {
-  pub value:  String,
+  value:  String,
 }
 
 impl RootWord {
@@ -26,6 +28,14 @@ impl RootWord {
     let pattern = format!("^({}{}{}|{}{}{}){}$", pair, vowel, cons, cons, vowel,
       cluster, vowel);
     Regex::new(&pattern).unwrap().is_match(&value)
+  }
+}
+
+impl fmt::Display for RootWord {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", json!({
+      "value":  self.value,
+    }))
   }
 }
 

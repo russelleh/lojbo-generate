@@ -12,6 +12,6 @@ fn main() {
   }).collect();
 
   words.iter().for_each(|word| {
-    println!("{}", word.value)
+    println!("{}", word)
   })
 }

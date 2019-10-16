@@ -5,6 +5,10 @@
 }
 
 @test "filter root words" {
-  len=$(cargo run | wc -l)
+  len=$(cat out.txt | wc -l)
   [ $len == 1342 ]
+}
+
+@test "parse output as json" {
+  cat out.txt | jq
 }

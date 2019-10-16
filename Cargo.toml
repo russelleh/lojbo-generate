@@ -1,8 +1,9 @@
 [package]
-name = "lojbo"
+name    = "lojbo"
 version = "0.1.0"
 authors = ["Russell Emmer <me@russelleh.info>"]
 edition = "2018"
 
 [dependencies]
-regex = "1"
+regex       = "1"
+serde_json  = "1"
