@@ -6,10 +6,21 @@ pub enum AffixForm {
 }
 
 struct Affix {
+  value:  String,
 }
 
 impl Affix {
-  pub fn form(value: &str) -> AffixForm {
+  fn new(value: String) -> Result<Affix, ()> {
+    Ok(Affix {
+      value,
+    })
+  }
+
+  fn valid(value: &str) -> bool {
+    true
+  }
+
+  fn form(value: &str) -> AffixForm {
     let cons    = "([bcdfgjklmnprstvxz])";
     let vowel   = "([aeiou])";
     let pattern_cvc = format!("^{}{}{}$",   cons, vowel, cons);
@@ -58,5 +69,14 @@ mod tests {
   fn form_cvhv() {
     let form    = Affix::form("ta'a");
     assert_eq!(AffixForm::CVV, form)
+  }
+
+  #[test]
+  fn valid() {
+    let value = String::from("tav");
+    match Affix::new(value) {
+      Err(_)  => panic!(),
+      _       => ()
+    }
   }
 }
