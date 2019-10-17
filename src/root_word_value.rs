@@ -2,17 +2,17 @@ use std::fmt;
 use regex::Regex;
 use serde_json::json;
 
-pub struct RootWord {
+pub struct RootWordValue {
   value:  String,
 }
 
-impl RootWord {
-  pub fn new(value: String) -> Result<RootWord, &'static str> {
-    match RootWord::valid(&value) {
-      false => Err("Invalid value"),
-      true  => Ok(RootWord {
+impl RootWordValue {
+  pub fn new(value: String) -> Result<RootWordValue, ()> {
+    match RootWordValue::valid(&value) {
+      false => Err(()),
+      true  => Ok(RootWordValue {
         value
-      }),
+      })
     }
   }
 
@@ -31,7 +31,7 @@ impl RootWord {
   }
 }
 
-impl fmt::Display for RootWord {
+impl fmt::Display for RootWordValue {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     write!(f, "{}", json!({
       "value":  self.value,
@@ -41,24 +41,24 @@ impl fmt::Display for RootWord {
 
 #[cfg(test)]
 mod tests {
-  use super::RootWord;
+  use super::RootWordValue;
 
   #[test]
-  fn value() {
+  fn valid() {
     let value = String::from("gleki");
-    match RootWord::new(value) {
-      Ok(_)   => (),
+    match RootWordValue::new(value) {
       Err(_)  => panic!(),
+      _       => ()
     }
   }
 
   #[test]
   #[should_panic]
-  fn invalid_value() {
+  fn invalid() {
     let value = String::from("happy");
-    match RootWord::new(value) {
-      Ok(_)   => (),
+    match RootWordValue::new(value) {
       Err(_)  => panic!(),
+      _       => ()
     }
   }
 }
