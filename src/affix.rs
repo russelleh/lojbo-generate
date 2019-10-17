@@ -1,3 +1,5 @@
+use regex::Regex;
+
 #[derive(Debug, PartialEq)]
 pub enum AffixForm {
   CVC,
@@ -11,13 +13,23 @@ struct Affix {
 
 impl Affix {
   fn new(value: String) -> Result<Affix, ()> {
-    Ok(Affix {
-      value,
-    })
+    match Affix::valid(&value) {
+      false => Err(()),
+      true  => Ok(Affix {
+        value,
+      })
+    }
   }
 
   fn valid(value: &str) -> bool {
-    true
+    let pair      = Regex::new("([bcfgkmpsvx][lr]|[td]r|[cs][pftkmn]|\
+      [jz][bvdgm]|t[cs]|d[jz])").unwrap();
+    let diphthong = Regex::new("('|[aeo]i|au)").unwrap();
+    match Affix::form(value) {
+      AffixForm::CCV  => pair.is_match(value),
+      AffixForm::CVV  => diphthong.is_match(value),
+      _               => true
+    }
   }
 
   fn form(value: &str) -> AffixForm {
@@ -74,6 +86,44 @@ mod tests {
   #[test]
   fn valid() {
     let value = String::from("tav");
+    match Affix::new(value) {
+      Err(_)  => panic!(),
+      _       => ()
+    }
+  }
+
+  #[test]
+  fn valid_diphthong() {
+    let value = String::from("toi");
+    match Affix::new(value) {
+      Err(_)  => panic!(),
+      _       => ()
+    }
+  }
+
+  #[test]
+  #[should_panic]
+  fn invalid_diphthong() {
+    let value = String::from("tio");
+    match Affix::new(value) {
+      Err(_)  => panic!(),
+      _       => ()
+    }
+  }
+
+  #[test]
+  fn valid_initial_pair() {
+    let value = String::from("zma");
+    match Affix::new(value) {
+      Err(_)  => panic!(),
+      _       => ()
+    }
+  }
+
+  #[test]
+  #[should_panic]
+  fn invalid_initial_pair() {
+    let value = String::from("zna");
     match Affix::new(value) {
       Err(_)  => panic!(),
       _       => ()
