@@ -1,4 +1,5 @@
 mod root_word_value;
+mod affix;
 
 use std::fs;
 use root_word_value::RootWordValue;
