@@ -3,7 +3,7 @@ use regex::Regex;
 use serde_json::json;
 
 pub struct Value {
-  value:  String,
+  pub value:  String,
 }
 
 impl Value {

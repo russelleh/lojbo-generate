@@ -7,12 +7,12 @@ pub enum AffixForm {
   CVV
 }
 
-struct Affix {
-  value:  String,
+pub struct Affix {
+  pub value:  String,
 }
 
 impl Affix {
-  fn new(value: String) -> Result<Affix, ()> {
+  pub fn new(value: String) -> Result<Affix, ()> {
     match Affix::valid(&value) {
       false => Err(()),
       true  => Ok(Affix {
