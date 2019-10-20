@@ -11,9 +11,12 @@ pub struct RootWord {
 
 impl RootWord {
   pub fn new(value: Value, affixes: Vec<Affix>) -> RootWord {
+    let valid_affixes = affixes.into_iter().filter(|affix| {
+      value.affix_set().is_match(&affix.value)
+    }).collect();
     RootWord {
-      value,
-      affixes
+      value:    value,
+      affixes:  valid_affixes
     }
   }
 }
@@ -26,12 +29,24 @@ mod tests {
 
   #[test]
   fn valid_affixes() {
-    let _root_word = RootWord::new(
+    let root_word = RootWord::new(
       Value::new(String::from("tavla")).ok().unwrap(),
       vec![
         Affix::new(String::from("tav")).ok().unwrap(),
         Affix::new(String::from("ta'a")).ok().unwrap()
       ]
     );
+    assert_eq!(root_word.affixes.len(), 2)
+  }
+
+  #[test]
+  fn invalid_affix() {
+    let root_word = RootWord::new(
+      Value::new(String::from("klama")).ok().unwrap(),
+      vec![
+        Affix::new(String::from("tav")).ok().unwrap(),
+      ]
+    );
+    assert_eq!(root_word.affixes.len(), 0)
   }
 }
