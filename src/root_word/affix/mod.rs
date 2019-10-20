@@ -1,6 +1,6 @@
 use regex::Regex;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Hash, Eq)]
 pub enum AffixForm {
   CVC,
   CCV,
@@ -32,7 +32,7 @@ impl Affix {
     }
   }
 
-  fn form(value: &str) -> AffixForm {
+  pub fn form(value: &str) -> AffixForm {
     let cons    = "([bcdfgjklmnprstvxz])";
     let vowel   = "([aeiou])";
     let pattern_cvc = format!("^{}{}{}$",   cons, vowel, cons);

@@ -1,19 +1,25 @@
 pub mod value;
 pub mod affix;
 
+use std::collections::HashMap;
+
 use value::Value;
 use affix::Affix;
+use affix::AffixForm;
 
 pub struct RootWord {
   pub value:    Value,
-  pub affixes:  Vec<Affix>
+  pub affixes:  HashMap<AffixForm, Affix>
 }
 
 impl RootWord {
   pub fn new(value: Value, affixes: Vec<Affix>) -> RootWord {
-    let valid_affixes = affixes.into_iter().filter(|affix| {
-      value.affix_set().is_match(&affix.value)
-    }).collect();
+    let mut valid_affixes = HashMap::new();
+    for affix in affixes {
+      if value.affix_set().is_match(&affix.value) {
+        valid_affixes.insert(Affix::form(&affix.value), affix);
+      }
+    }
     RootWord {
       value:    value,
       affixes:  valid_affixes
@@ -36,7 +42,7 @@ mod tests {
         Affix::new(String::from("ta'a")).ok().unwrap()
       ]
     );
-    assert_eq!(root_word.affixes.len(), 2)
+    assert_eq!(root_word.affixes.keys().len(), 2)
   }
 
   #[test]
@@ -47,6 +53,6 @@ mod tests {
         Affix::new(String::from("tav")).ok().unwrap(),
       ]
     );
-    assert_eq!(root_word.affixes.len(), 0)
+    assert_eq!(root_word.affixes.keys().len(), 0)
   }
 }
