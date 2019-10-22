@@ -1,7 +1,9 @@
 pub mod value;
 pub mod affix;
 
+use std::fmt;
 use std::collections::HashMap;
+use serde_json::json;
 
 use value::Value;
 use affix::Affix;
@@ -17,13 +19,25 @@ impl RootWord {
     let mut valid_affixes = HashMap::new();
     for affix in affixes {
       if value.affix_set().is_match(&affix.value) {
-        valid_affixes.insert(Affix::form(&affix.value), affix);
+        valid_affixes.insert(Affix::form(&affix.value).unwrap(), affix);
       }
     }
     RootWord {
       value:    value,
       affixes:  valid_affixes
     }
+  }
+}
+
+impl fmt::Display for RootWord {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let affix_values: Vec<String> = self.affixes.values().into_iter().map(|affix| {
+      format!("{}", affix)
+    }).collect();
+    write!(f, "{}", json!({
+      "value":    self.value.value,
+      "affixes":  affix_values
+    }))
   }
 }
 
@@ -36,10 +50,10 @@ mod tests {
   #[test]
   fn valid_affixes() {
     let root_word = RootWord::new(
-      Value::new(String::from("tavla")).ok().unwrap(),
+      Value::new(String::from("tavla")).unwrap(),
       vec![
-        Affix::new(String::from("tav")).ok().unwrap(),
-        Affix::new(String::from("ta'a")).ok().unwrap()
+        Affix::new(String::from("tav")).unwrap(),
+        Affix::new(String::from("ta'a")).unwrap()
       ]
     );
     assert_eq!(root_word.affixes.keys().len(), 2)
@@ -48,9 +62,9 @@ mod tests {
   #[test]
   fn invalid_affix() {
     let root_word = RootWord::new(
-      Value::new(String::from("klama")).ok().unwrap(),
+      Value::new(String::from("klama")).unwrap(),
       vec![
-        Affix::new(String::from("tav")).ok().unwrap(),
+        Affix::new(String::from("tav")).unwrap(),
       ]
     );
     assert_eq!(root_word.affixes.keys().len(), 0)

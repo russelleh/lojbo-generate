@@ -1,3 +1,4 @@
+use std::fmt;
 use regex::Regex;
 
 #[derive(Debug, PartialEq, Hash, Eq)]
@@ -12,10 +13,10 @@ pub struct Affix {
 }
 
 impl Affix {
-  pub fn new(value: String) -> Result<Affix, ()> {
+  pub fn new(value: String) -> Option<Affix> {
     match Affix::valid(&value) {
-      false => Err(()),
-      true  => Ok(Affix {
+      false => None,
+      true  => Some(Affix {
         value,
       })
     }
@@ -26,13 +27,16 @@ impl Affix {
       [jz][bvdgm]|t[cs]|d[jz])").unwrap();
     let diphthong = Regex::new("('|[aeo]i|au)").unwrap();
     match Affix::form(value) {
-      AffixForm::CCV  => pair.is_match(value),
-      AffixForm::CVV  => diphthong.is_match(value),
-      _               => true
+      None              => false,
+      Some(affix_form)  => match affix_form {
+        AffixForm::CVC  => true,
+        AffixForm::CCV  => pair.is_match(value),
+        AffixForm::CVV  => diphthong.is_match(value)
+      }
     }
   }
 
-  pub fn form(value: &str) -> AffixForm {
+  pub fn form(value: &str) -> Option<AffixForm> {
     let cons    = "([bcdfgjklmnprstvxz])";
     let vowel   = "([aeiou])";
     let pattern_cvc = format!("^{}{}{}$",   cons, vowel, cons);
@@ -43,14 +47,20 @@ impl Affix {
     let expr_cvv    = regex::Regex::new(&pattern_cvv).unwrap();
 
     if expr_cvc.is_match(value) {
-      AffixForm::CVC
+      Some(AffixForm::CVC)
     } else if expr_ccv.is_match(value) {
-      AffixForm::CCV
+      Some(AffixForm::CCV)
     } else if expr_cvv.is_match(value) {
-      AffixForm::CVV
+      Some(AffixForm::CVV)
     } else {
-      panic!()
+      None
     }
+  }
+}
+
+impl fmt::Display for Affix {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.value)
   }
 }
 
@@ -61,25 +71,25 @@ mod tests {
 
   #[test]
   fn form_cvc() {
-    let form    = Affix::form("tav");
+    let form    = Affix::form("tav").unwrap();
     assert_eq!(AffixForm::CVC, form)
   }
 
   #[test]
   fn form_ccv() {
-    let form    = Affix::form("vla");
+    let form    = Affix::form("vla").unwrap();
     assert_eq!(AffixForm::CCV, form)
   }
 
   #[test]
   fn form_cvv() {
-    let form    = Affix::form("tau");
+    let form    = Affix::form("tau").unwrap();
     assert_eq!(AffixForm::CVV, form)
   }
 
   #[test]
   fn form_cvhv() {
-    let form    = Affix::form("ta'a");
+    let form    = Affix::form("ta'a").unwrap();
     assert_eq!(AffixForm::CVV, form)
   }
 
@@ -87,8 +97,8 @@ mod tests {
   fn valid() {
     let value = String::from("tav");
     match Affix::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 
@@ -96,8 +106,8 @@ mod tests {
   fn valid_diphthong() {
     let value = String::from("toi");
     match Affix::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 
@@ -106,8 +116,8 @@ mod tests {
   fn invalid_diphthong() {
     let value = String::from("tio");
     match Affix::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 
@@ -115,8 +125,8 @@ mod tests {
   fn valid_initial_pair() {
     let value = String::from("zma");
     match Affix::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 
@@ -125,8 +135,8 @@ mod tests {
   fn invalid_initial_pair() {
     let value = String::from("zna");
     match Affix::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 }

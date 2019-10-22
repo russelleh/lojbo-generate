@@ -5,10 +5,15 @@
 }
 
 @test "filter root words" {
-  len=$(cat out.txt | wc -l)
+  len=$(cat out.json | wc -l)
   [ $len == 1342 ]
 }
 
 @test "parse output as json" {
-  cat out.txt | jq
+  cat out.json | jq
+}
+
+@test "parse affix" {
+  len=$(cat out.json | jq .affixes[] | wc -l)
+  [ $len == 1433 ]
 }

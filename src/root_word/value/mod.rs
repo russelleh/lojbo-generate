@@ -8,10 +8,10 @@ pub struct Value {
 }
 
 impl Value {
-  pub fn new(value: String) -> Result<Value, ()> {
+  pub fn new(value: String) -> Option<Value> {
     match Value::valid(&value) {
-      false => Err(()),
-      true  => Ok(Value {
+      false => None,
+      true  => Some(Value {
         value
       })
     }
@@ -71,9 +71,7 @@ impl Value {
 
 impl fmt::Display for Value {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", json!({
-      "value":  self.value,
-    }))
+    write!(f, "{}", json!(self.value))
   }
 }
 
@@ -85,8 +83,8 @@ mod tests {
   fn valid() {
     let value = String::from("gleki");
     match Value::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 
@@ -95,8 +93,8 @@ mod tests {
   fn invalid() {
     let value = String::from("happy");
     match Value::new(value) {
-      Err(_)  => panic!(),
-      _       => ()
+      Some(_) => (),
+      None    => panic!()
     }
   }
 }
