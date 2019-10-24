@@ -19,16 +19,21 @@ pub struct RootWord {
 }
 
 impl RootWord {
-  pub fn new(value: Value, affixes: Vec<Affix>, sources: Vec<Source>) -> RootWord {
+  pub fn new(value:          Value,
+             affix_values:   HashSet<&str>,
+             source_values:  HashSet<&str>) -> RootWord {
     let mut valid_affixes = HashMap::new();
-    for affix in affixes {
-      if value.valid_affixes().is_match(&affix.value) {
-        valid_affixes.insert(Affix::form(&affix.value).unwrap(), affix);
+    for affix_value in affix_values {
+      if value.valid_affix(affix_value) {
+        let affix = Affix::new(affix_value.to_string()).unwrap();
+        let form  = Affix::form(affix_value).unwrap();
+        valid_affixes.insert(form, affix);
       }
     }
     let mut valid_sources = HashSet::new();
-    for source in sources {
-      if value.valid_source(&source.value) {
+    for source_value in source_values {
+      if value.valid_source(source_value) {
+        let source = Source::new(source_value.to_string());
         valid_sources.insert(source);
       }
     }
@@ -43,43 +48,51 @@ impl RootWord {
 
 impl fmt::Display for RootWord {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    let affix_values: Vec<String> = self.affixes.values().into_iter().map(|affix| {
-      format!("{}", affix)
+    let affixes: Vec<String> = self.affixes.values().map(|affix| {
+      format!("{}", affix.value)
+    }).collect();
+    let sources: Vec<String> = self.sources.iter().map(|source| {
+      format!("{}", source.value)
     }).collect();
     write!(f, "{}", json!({
       "value":    self.value.value,
-      "affixes":  affix_values
+      "affixes":  affixes,
+      "sources":  sources,
     }))
   }
 }
 
 #[cfg(test)]
 mod tests {
+  use super::HashSet;
   use super::RootWord;
   use super::value::Value;
-  use super::affix::Affix;
 
   #[test]
   fn valid_affixes() {
+    let     value   = Value::new("tavla".to_string()).unwrap();
+    let mut affixes = HashSet::new();
+    let sources = HashSet::new();
+    affixes.insert("tav");
+    affixes.insert("ta'a");
     let root_word = RootWord::new(
-      Value::new(String::from("tavla")).unwrap(),
-      vec![
-        Affix::new(String::from("tav")).unwrap(),
-        Affix::new(String::from("ta'a")).unwrap()
-      ],
-      vec![]
+      value,
+      affixes,
+      sources,
     );
     assert_eq!(root_word.affixes.keys().len(), 2)
   }
 
   #[test]
   fn invalid_affix() {
+    let value   = Value::new("klama".to_string()).unwrap();
+    let mut affixes = HashSet::new();
+    let sources = HashSet::new();
+    affixes.insert("tav");
     let root_word = RootWord::new(
-      Value::new(String::from("klama")).unwrap(),
-      vec![
-        Affix::new(String::from("tav")).unwrap(),
-      ],
-      vec![]
+      value,
+      affixes,
+      sources,
     );
     assert_eq!(root_word.affixes.keys().len(), 0)
   }

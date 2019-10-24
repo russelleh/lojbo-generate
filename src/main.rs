@@ -1,14 +1,10 @@
 mod root_word;
 
 use std::fs;
-use serde_json::json;
-
 use std::collections::HashSet;
 
 use root_word::RootWord;
 use root_word::value::Value;
-use root_word::affix::Affix;
-use root_word::source::Source;
 
 fn main() {
   let data_r:     String
@@ -57,78 +53,42 @@ fn main() {
         affix_2_v.trim()
       ];
       let affix_vs:  Vec<&str> = affix_v_vs.into_iter().filter(|affix_v| {
-        value.valid_affix(affix_v)
+        affix_v.len() > 0
       }).collect();
 
-      let mut valid_affixes: HashSet<&str> = HashSet::new();
-      let mut valid_sources: HashSet<&str> = HashSet::new();
+      let lines_s_langs = vec![
+        &lines_s_en,
+        &lines_s_es,
+        &lines_s_hi,
+        &lines_s_ru,
+        &lines_s_zh,
+      ];
+
+      let mut affixes: HashSet<&str> = HashSet::new();
+      let mut sources: HashSet<&str> = HashSet::new();
 
       for affix in affix_vs {
-        if value.valid_affix(affix) {
-          valid_affixes.insert(affix);
-        }
+        affixes.insert(affix);
       }
 
-      for line_s_en in &lines_s_en {
-        let values_s_en:   Vec<&str> = line_s_en.split("\t").collect();
-        let values_s_en_v: &str      = values_s_en[0];
-        let values_s_en_s: &str      = values_s_en[2];
-        if values_s_en_v == value.value {
-          if value.valid_source(values_s_en_s) {
-            valid_sources.insert(values_s_en_s);
+      for lines_s in lines_s_langs {
+        for line_s in lines_s {
+          let values_s:   Vec<&str> = line_s.split("\t").collect();
+          let values_s_v: &str      = values_s[0];
+          if values_s_v == value.value {
+            let values_s_s: &str = values_s[2];
+            sources.insert(values_s_s);
           }
         }
       }
 
-      for line_s_es in &lines_s_es {
-        let values_s_es:   Vec<&str> = line_s_es.split("\t").collect();
-        let values_s_es_v: &str      = values_s_es[0];
-        let values_s_es_s: &str      = values_s_es[2];
-        if values_s_es_v == value.value {
-          if value.valid_source(values_s_es_s) {
-            valid_sources.insert(values_s_es_s);
-          }
-        }
-      }
+      let root_word = RootWord::new(
+        value,
+        affixes,
+        sources
+      );
 
-      for line_s_hi in &lines_s_hi {
-        let values_s_hi:   Vec<&str> = line_s_hi.split("\t").collect();
-        let values_s_hi_v: &str      = values_s_hi[0];
-        let values_s_hi_s: &str      = values_s_hi[2];
-        if values_s_hi_v == value.value {
-          if value.valid_source(values_s_hi_s) {
-            valid_sources.insert(values_s_hi_s);
-          }
-        }
-      }
-
-      for line_s_ru in &lines_s_ru {
-        let values_s_ru:   Vec<&str> = line_s_ru.split("\t").collect();
-        let values_s_ru_v: &str      = values_s_ru[0];
-        let values_s_ru_s: &str      = values_s_ru[2];
-        if values_s_ru_v == value.value {
-          if value.valid_source(values_s_ru_s) {
-            valid_sources.insert(values_s_ru_s);
-          }
-        }
-      }
-
-      for line_s_zh in &lines_s_zh {
-        let values_s_zh:   Vec<&str> = line_s_zh.split("\t").collect();
-        let values_s_zh_v: &str      = values_s_zh[0];
-        let values_s_zh_s: &str      = values_s_zh[2];
-        if values_s_zh_v == value.value {
-          if value.valid_source(values_s_zh_s) {
-            valid_sources.insert(values_s_zh_s);
-          }
-        }
-      }
-
-      println!("{}", json!({
-        "value":    value.value,
-        "affixes":  valid_affixes,
-        "sources":  valid_sources,
-      }));
+      println!("{}", root_word);
     }
   }
 }
