@@ -26,7 +26,18 @@ impl Value {
   }
 
   pub fn valid_source(&self, source_value: &str) -> bool {
-    Value::score(0, &self.value, source_value) >= 2
+    (0..5).into_iter().map(|i| {
+      let len = source_value.len();
+      if len > 0 {
+        (0..len).into_iter().map(|j| {
+          let value_tail:  String = self.value.chars().skip(i).collect();
+          let source_tail: String = source_value.chars().skip(j).collect();
+          Value::score(0, &value_tail, &source_tail)
+        }).max().unwrap()
+      } else {
+        0
+      }
+    }).max().unwrap() >= 2
   }
 
   fn valid_values() -> Regex {
@@ -150,6 +161,24 @@ mod tests {
     let value = String::from("katna");
     match Value::new(value) {
       Some(v) => assert!(v.valid_source("kort")),
+      None    => panic!()
+    }
+  }
+
+  #[test]
+  fn valid_source_not_first_char() {
+    let value = String::from("bersa");
+    match Value::new(value) {
+      Some(v) => assert!(v.valid_source("er")),
+      None    => panic!()
+    }
+  }
+
+  #[test]
+  fn valid_source_not_first_source_char() {
+    let value = String::from("krixa");
+    match Value::new(value) {
+      Some(v) => assert!(v.valid_source("grit")),
       None    => panic!()
     }
   }
