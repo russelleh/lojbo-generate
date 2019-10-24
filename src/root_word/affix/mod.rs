@@ -8,6 +8,7 @@ pub enum AffixForm {
   CVV
 }
 
+#[derive(PartialEq, Hash, Eq)]
 pub struct Affix {
   pub value:  String,
 }

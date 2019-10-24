@@ -9,7 +9,7 @@ pub struct Value {
 
 impl Value {
   pub fn new(value: String) -> Option<Value> {
-    match Value::valid(&value) {
+    match Value::valid_value(&value) {
       false => None,
       true  => Some(Value {
         value
@@ -17,7 +17,19 @@ impl Value {
     }
   }
 
-  fn valid(value: &str) -> bool {
+  fn valid_value(value: &str) -> bool {
+    Value::valid_values().is_match(&value)
+  }
+
+  pub fn valid_affix(&self, affix_value: &str) -> bool {
+    self.valid_affixes().is_match(affix_value)
+  }
+
+  pub fn valid_source(&self, source_value: &str) -> bool {
+    Value::score(0, &self.value, source_value) >= 2
+  }
+
+  fn valid_values() -> Regex {
     let cons    = "([bcdfgjklmnprstvxz])";
     let vowel   = "([aeiou])";
     let pair    = concat!("([bcfgkmpsvx][lr]|[td]r|[cs][pftkmn]|[jz][bvdgm]|",
@@ -28,10 +40,10 @@ impl Value {
       "m[lrnbdgjvcfkpstx]|n[lrm])");
     let pattern = format!("^({}{}{}|{}{}{}){}$", pair, vowel, cons, cons, vowel,
       cluster, vowel);
-    Regex::new(&pattern).unwrap().is_match(&value)
+    Regex::new(&pattern).unwrap()
   }
 
-  pub fn affix_set(&self) -> RegexSet {
+  pub fn valid_affixes(&self) -> RegexSet {
     let cons    = "([bcdfgjklmnprstvxz])";
     let vowel   = "([aeiou])";
     let pattern_cvccv = format!("{}{}{}{}{}", cons, vowel, cons,  cons, vowel);
@@ -67,6 +79,31 @@ impl Value {
       panic!()
     }
   }
+
+  fn score(acc: usize, value: &str, source: &str) -> usize {
+    if value == "" {
+      acc
+    } else if source == "" {
+      acc
+    } else {
+      let value_head:   String  = value.chars().take(1).collect();
+      let source_head:  String  = source.chars().take(1).collect();
+      if value_head != source_head {
+        acc
+      } else {
+        let value_tail:   String  = value.chars().skip(1).collect();
+        let source_tail:  String  = source.chars().skip(1).collect();
+        let value_next:   String  = value_tail.chars().skip(1).collect();
+        let source_next:  String  = source_tail.chars().skip(1).collect();
+        let score_a               = Value::score(acc, &value_tail, &source_tail);
+        let score_b               = Value::score(acc, &value_next, &source_tail);
+        let score_c               = Value::score(acc, &value_tail, &source_next);
+        let scores                = vec![score_a, score_b, score_c];
+        let score_max             = scores.iter().max().unwrap();
+        acc + 1 + score_max
+      }
+    }
+  }
 }
 
 impl fmt::Display for Value {
@@ -94,6 +131,25 @@ mod tests {
     let value = String::from("happy");
     match Value::new(value) {
       Some(_) => (),
+      None    => panic!()
+    }
+  }
+
+  #[test]
+  fn valid_source() {
+    let value = String::from("katna");
+    match Value::new(value) {
+      Some(v) => assert!(v.valid_source("kan")),
+      None    => panic!()
+    }
+  }
+
+  #[test]
+  #[should_panic]
+  fn invalid_source() {
+    let value = String::from("katna");
+    match Value::new(value) {
+      Some(v) => assert!(v.valid_source("kort")),
       None    => panic!()
     }
   }
