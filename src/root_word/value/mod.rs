@@ -1,7 +1,6 @@
 use std::fmt;
 use regex::Regex;
 use regex::RegexSet;
-use serde_json::json;
 
 pub struct Value {
   pub value:  String,
@@ -109,7 +108,8 @@ impl Value {
         let score_a               = Value::score(acc, &value_tail, &source_tail);
         let score_b               = Value::score(acc, &value_next, &source_tail);
         let score_c               = Value::score(acc, &value_tail, &source_next);
-        let scores                = vec![score_a, score_b, score_c];
+        let score_d               = Value::score(acc, &value_next, &source_next);
+        let scores                = vec![score_a, score_b, score_c, score_d];
         let score_max             = scores.iter().max().unwrap();
         acc + 1 + score_max
       }
@@ -119,7 +119,7 @@ impl Value {
 
 impl fmt::Display for Value {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "{}", json!(self.value))
+    write!(f, "\"{}\"", self.value)
   }
 }
 
@@ -179,6 +179,15 @@ mod tests {
     let value = String::from("krixa");
     match Value::new(value) {
       Some(v) => assert!(v.valid_source("grit")),
+      None    => panic!()
+    }
+  }
+
+  #[test]
+  fn valid_source_not_first_char_space() {
+    let value = String::from("gunka");
+    match Value::new(value) {
+      Some(v) => assert!(v.valid_source("urk")),
       None    => panic!()
     }
   }

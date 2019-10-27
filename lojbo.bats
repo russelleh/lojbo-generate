@@ -6,7 +6,7 @@
 
 @test "filter root words" {
   len=$(cat out.json | wc -l)
-  [ $len == 1342 ]
+  [ $len == 1244 ]
 }
 
 @test "parse output as json" {
@@ -15,5 +15,5 @@
 
 @test "parse affix" {
   len=$(cat out.json | jq .affixes[] | wc -l)
-  [ $len == 1433 ]
+  [ $len == 1318 ]
 }

@@ -5,7 +5,6 @@ pub mod source;
 use std::fmt;
 use std::collections::HashMap;
 use std::collections::HashSet;
-use serde_json::json;
 
 use value::Value;
 use affix::Affix;
@@ -14,14 +13,16 @@ use source::Source;
 
 pub struct RootWord {
   pub value:    Value,
+  pub meaning:  String,
   pub affixes:  HashMap<AffixForm, Affix>,
   pub sources:  HashSet<Source>
 }
 
 impl RootWord {
   pub fn new(value:          Value,
+             meaning:        String,
              affix_values:   HashSet<&str>,
-             source_values:  HashSet<&str>) -> RootWord {
+             source_values:  HashSet<[&str;3]>) -> RootWord {
     let mut valid_affixes = HashMap::new();
     for affix_value in affix_values {
       if value.valid_affix(affix_value) {
@@ -31,15 +32,23 @@ impl RootWord {
       }
     }
     let mut valid_sources = HashSet::new();
-    for source_value in source_values {
+    for source_value_ in source_values {
+      let source_value    = source_value_[0];
+      let source_source   = source_value_[1];
+      let source_language = source_value_[2];
       if value.valid_source(source_value) {
-        let source = Source::new(source_value.to_string());
+        let source = Source::new(
+          source_value.to_string(),
+          source_source.to_string(),
+          source_language.to_string()
+        );
         valid_sources.insert(source);
       }
     }
 
     RootWord {
       value:    value,
+      meaning:  meaning,
       affixes:  valid_affixes,
       sources:  valid_sources,
     }
@@ -49,16 +58,17 @@ impl RootWord {
 impl fmt::Display for RootWord {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
     let affixes: Vec<String> = self.affixes.values().map(|affix| {
-      format!("{}", affix.value)
+      affix.to_string()
     }).collect();
     let sources: Vec<String> = self.sources.iter().map(|source| {
-      format!("{}", source.value)
+      source.to_string()
     }).collect();
-    write!(f, "{}", json!({
-      "value":    self.value.value,
-      "affixes":  affixes,
-      "sources":  sources,
-    }))
+    write!(f, "{{\
+      \"value\":    {},\
+      \"meaning\":  \"{}\",\
+      \"affixes\":  [{}],\
+      \"sources\":  [{}]\
+    }}", self.value, self.meaning, affixes.join(","), sources.join(","))
   }
 }
 
@@ -77,6 +87,7 @@ mod tests {
     affixes.insert("ta'a");
     let root_word = RootWord::new(
       value,
+      "".to_string(),
       affixes,
       sources,
     );
@@ -91,6 +102,7 @@ mod tests {
     affixes.insert("tav");
     let root_word = RootWord::new(
       value,
+      "".to_string(),
       affixes,
       sources,
     );

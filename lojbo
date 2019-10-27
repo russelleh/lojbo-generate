@@ -7,7 +7,7 @@ if [ ! -f data/gismu.txt ]; then
     --output data/gismu.txt
 fi
 
-cargo run > out.json
+cargo run | jq -c > out.json
 ./lojbo.bats  || exit 1
 cargo test    || exit 1
 rm out.json
