@@ -1,7 +1,10 @@
-(function () {
-  document.addEventListener("DOMContentLoaded", function (e) {
-    let words = // $(cargo run | jq -csM)
-    document.getElementsByTagName("body")[0].innerHTML = words.map((word) => {
+console.log(
+  "<head>" +
+    "<meta charset=\"utf8\">" +
+    "<link href=\"index.css\" rel=\"stylesheet\" type=\"text/css\">" +
+  "</head>" +
+  "<body>" +
+    words.map((word) => {
       const match   = word.meaning.match(/x[1-5]/g);
       return (() => { if (match) {
         return "<div class='root_word'>" +
@@ -46,7 +49,7 @@
         "</div>"
       } else {
         return ""
-      } })();
-    }).join("")
-  })
-})()
+      } })()
+    }).join("") +
+  "</>"
+)
