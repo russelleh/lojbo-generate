@@ -28,20 +28,20 @@ fn main() {
     value.to_string()
   }).collect();
 
-  let data_r:     String
-    = fs::read_to_string("data/gismu.txt").expect("err");
-  let data_m:     String
-    = fs::read_to_string("data/simple_gismu.txt").expect("err");
-  let data_s_en:  String
-    = fs::read_to_string("data/lojban-source-words_en.txt").expect("err");
-  let data_s_es:  String
-    = fs::read_to_string("data/lojban-source-words_es.txt").expect("err");
-  let data_s_hi:  String
-    = fs::read_to_string("data/lojban-source-words_hi.txt").expect("err");
-  let data_s_ru:  String
-    = fs::read_to_string("data/lojban-source-words_ru.txt").expect("err");
-  let data_s_zh:  String
-    = fs::read_to_string("data/lojban-source-words_zh.txt").expect("err");
+  let file_r            = "data/gismu.txt";
+  let file_m            = "data/simple_gismu.txt";
+  let file_s_en         = "data/lojban-etymology/en/lojban-source-words_en.txt";
+  let file_s_es         = "data/lojban-etymology/es/lojban-source-words_es.txt";
+  let file_s_hi         = "data/lojban-etymology/hi/lojban-source-words_hi.txt";
+  let file_s_ru         = "data/lojban-etymology/ru/lojban-source-words_ru.txt";
+  let file_s_zh         = "data/lojban-etymology/zh/lojban-source-words_zh.txt";
+  let data_r:    String = fs::read_to_string(file_r).expect("err");
+  let data_m:    String = fs::read_to_string(file_m).expect("err");
+  let data_s_en: String = fs::read_to_string(file_s_en).expect("err");
+  let data_s_es: String = fs::read_to_string(file_s_es).expect("err");
+  let data_s_hi: String = fs::read_to_string(file_s_hi).expect("err");
+  let data_s_ru: String = fs::read_to_string(file_s_ru).expect("err");
+  let data_s_zh: String = fs::read_to_string(file_s_zh).expect("err");
   let head_r:     Vec<&str> = data_r.split("\n").skip(1).collect();
   let head_m:     Vec<&str> = data_m.split("\n").collect();
   let head_s_en:  Vec<&str> = data_s_en.split("\n").collect();

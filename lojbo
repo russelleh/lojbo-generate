@@ -6,8 +6,51 @@ if [ ! -f data/gismu.txt ]; then
   curl https://mw.lojban.org/images/d/d8/gismu.txt \
     --output data/gismu.txt
 fi
+if [ ! -f data/Simple_gismu ]; then
+  curl https://mw.lojban.org/papri/Simple_gismu \
+    --output data/Simple_gismu
+fi
+if [ ! -f data/jbofihe/places.dat ]; then
+  git clone https://github.com/lojban/jbofihe data/jbofihe/
+fi
+if [ ! -f data/lojban-etymology/en/lojban-source-words_en.txt ]; then
+  git clone https://github.com/lojban/lojban-etymology data/lojban-etymology/
+fi
+if [ ! -f data/simple_gismu.txt ]; then
+  cat data/Simple_gismu \
+    | grep -E '^<td> [a-z]{5}' -A 2 \
+    | tr -d '\n' \
+    | sed 's/--/\n/g' \
+    | sed 's/<td> //g' \
+    | sed -E 's/<\/td>/\t/g' \
+    | grep x1 \
+    > data/simple_gismu.txt
+fi
 
 cargo run | jq -c > out.json
 ./lojbo.bats  || exit 1
 cargo test    || exit 1
+sassc --sass index.sass > index.css
+if [ ! -f fonts/NotoSans-Regular.woff2 ]; then
+  notosans="https://noto-website-2.storage.googleapis.com/pkgs/NotoSans"
+  mkdir -p fonts/
+  curl "${notosans}-unhinted.zip"           --output fonts/NS.zip
+  curl "${notosans}Devanagari-unhinted.zip" --output fonts/NS_D.zip
+  curl "${notosans}SC.zip"                  --output fonts/NS_SC.zip
+  unzip -o -d fonts/ fonts/NS.zip
+  unzip -o -d fonts/ fonts/NS_D.zip
+  unzip -o -d fonts/ fonts/NS_SC.zip
+  woff2_compress fonts/NotoSans-Regular.ttf
+  woff2_compress fonts/NotoSans-Bold.ttf
+  woff2_compress fonts/NotoSans-Italic.ttf
+  woff2_compress fonts/NotoSans-BoldItalic.ttf
+  woff2_compress fonts/NotoSansDevanagari-Regular.ttf
+  woff2_compress fonts/NotoSansSC-Regular.otf
+  rm fonts/README
+  rm fonts/*.txt
+  rm fonts/*.ttf
+  rm fonts/*.otf
+  rm fonts/*.zip
+fi
+./dictionary.sh
 rm out.json

@@ -1,0 +1,8 @@
+Cargo.lock
+target/
+data/
+fonts/
+*.js
+*.css
+dictionary.html
+dictionary.ts
